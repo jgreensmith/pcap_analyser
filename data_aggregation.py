@@ -24,8 +24,8 @@ socket_inet_ntoa = socket.inet_ntoa
 def tcp_handler(tcp, packet: dict) -> None:
     """ filter packets that are to are may contain relevant data"""
 
-    email_from_pattern = r"FROM:\s*<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>"
-    email_to_pattern = r"T0:\s*<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>"
+    email_from_pattern = r"From:\s*[\"]?[a-zA-Z\s]+[\"]?\s*<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>"
+    email_to_pattern = r"To:\s*<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>"
     image_extensions = {'.jpg', '.jpeg', '.png', '.gif',
                         '.bmp', '.webp', '.svg'}  # use set for speed
     payload = tcp.data
@@ -54,6 +54,7 @@ def tcp_handler(tcp, packet: dict) -> None:
 
         # Emails
         decoded_payload = payload.decode()
+        # print(decoded_payload)
         # Search for email "From" patterns
         email_from = re.findall(email_from_pattern, decoded_payload)
         if email_from:

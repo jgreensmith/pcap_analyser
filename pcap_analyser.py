@@ -26,7 +26,7 @@ def main():
     show_packet_types(data)
 
     print([p for p in data if 'email_to' in p])
-    print([p['email_from'] for p in data if 'email_from' in p])
+    print([p for p in data if 'email_from' in p])
     # print([p['image'] for p in data if 'image_url' in p])
 
 
