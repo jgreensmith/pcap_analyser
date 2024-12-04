@@ -20,31 +20,48 @@ DpktReq = dpkt.http.Request
 DpktError = dpkt.UnpackError
 socket_inet_ntoa = socket.inet_ntoa
 
+def extract_image(dpkt_req: DpktReq, packet: dict, port: int) -> None:
+    """check if http request contains and image, then add url and image name to packet"""
+    image_extensions = {'.jpg', '.jpeg', '.png', '.gif', '.bmp', '.webp', '.svg'}  # use set for speed
+    
+    if dpkt_req.method == "GET":
+        uri = dpkt_req.uri.lower()
+
+        # Check if the URI ends with an image extension
+        if any(uri.endswith(ext) for ext in image_extensions):
+            packet["image_url"] = f"http{
+                's' if port == 443 else ''}://{dpkt_req.headers['host']}{uri}"
+            packet["image"] = os.path.basename(uri)
+
+def extract_emails(decoded_payload: str, packet: dict) -> None:
+    """extract emails from decoded payload using regex"""
+
+    from_pattern = r"From:\s*[\"]?[a-zA-Z\s]+[\"]?\s*<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>"
+    to_pattern = r"To:\s*<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>"
+    # Search for email "From" patterns
+    email_from = re.findall(from_pattern, decoded_payload)
+    if email_from:
+        packet["email_from"] = email_from[0]
+
+    # Search for email "To" patterns
+    email_to = re.findall(to_pattern, decoded_payload)
+    if email_to:
+        packet["email_to"] = email_to[0]
+
+
 
 def tcp_handler(tcp, packet: dict) -> None:
     """ filter packets that are to are may contain relevant data"""
 
-    email_from_pattern = r"From:\s*[\"]?[a-zA-Z\s]+[\"]?\s*<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>"
-    email_to_pattern = r"To:\s*<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>"
-    image_extensions = {'.jpg', '.jpeg', '.png', '.gif',
-                        '.bmp', '.webp', '.svg'}  # use set for speed
     payload = tcp.data
 
     # Search
     try:
 
         try:
-            decoded_http = DpktReq(payload)
+            dpkt_req = DpktReq(payload)
             # Search for image URLs
-            if decoded_http.method == "GET":
-                uri = decoded_http.uri.lower()
-
-                # Check if the URI ends with an image extension
-                if any(uri.endswith(ext) for ext in image_extensions):
-                    packet["image_url"] = f"http{
-                        's' if tcp.dport == 443 else ''}://{decoded_http.headers['host']}{uri}"
-                    packet["image"] = os.path.basename(uri)
-
+            extract_image(dpkt_req, packet, tcp.dport)
             # code above works, packet wont contain emails so just skip
             return None
 
@@ -54,19 +71,8 @@ def tcp_handler(tcp, packet: dict) -> None:
 
         # Emails
         decoded_payload = payload.decode()
-        # print(decoded_payload)
-        # Search for email "From" patterns
-        email_from = re.findall(email_from_pattern, decoded_payload)
-        if email_from:
-            packet["email_from"] = email_from[0]
+        extract_emails(decoded_payload, packet)
 
-        # Search for email "To" patterns
-        
-        email_to = re.findall(email_to_pattern, decoded_payload)
-        if email_to:
-            packet["email_to"] = email_to[0]
-
-        # print(decoded_payload)
     except re.error as e:
         # Skip packets that failed decoding
         logger.error("Regex error occured: %s", e)
