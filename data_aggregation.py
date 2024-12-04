@@ -3,6 +3,8 @@ sort this
 """
 
 import socket
+import os
+import re
 import logging
 from datetime import datetime as dt
 import dpkt
@@ -19,21 +21,57 @@ DpktError = dpkt.UnpackError
 socket_inet_ntoa = socket.inet_ntoa
 
 
-def tcp_handler(tcp: DpktTcp, packet: dict) -> None:
+def tcp_handler(tcp, packet: dict) -> None:
     """ filter packets that are to are may contain relevant data"""
 
-    # Search for HTTP requests
+    email_from_pattern = r"FROM:\s*<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>"
+    email_to_pattern = r"T0:\s*<([a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})>"
+    image_extensions = {'.jpg', '.jpeg', '.png', '.gif',
+                        '.bmp', '.webp', '.svg'}  # use set for speed
+    payload = tcp.data
+
+    # Search
     try:
-        packet['http_req'] = DpktReq(tcp.data)
-    except DpktError:
-        # Skip TCP packets that do not contain HTTP requests
+
+        try:
+            decoded_http = DpktReq(payload)
+            # Search for image URLs
+            if decoded_http.method == "GET":
+                uri = decoded_http.uri.lower()
+
+                # Check if the URI ends with an image extension
+                if any(uri.endswith(ext) for ext in image_extensions):
+                    packet["image_url"] = f"http{
+                        's' if tcp.dport == 443 else ''}://{decoded_http.headers['host']}{uri}"
+                    packet["image"] = os.path.basename(uri)
+
+            # code above works, packet wont contain emails so just skip
+            return None
+
+        except DpktError:
+            # Skip TCP packets that do not contain HTTP requests
+            pass
+
+        # Emails
+        decoded_payload = payload.decode()
+        # Search for email "From" patterns
+        email_from = re.findall(email_from_pattern, decoded_payload)
+        if email_from:
+            packet["email_from"] = email_from[0]
+
+        # Search for email "To" patterns
+        
+        email_to = re.findall(email_to_pattern, decoded_payload)
+        if email_to:
+            packet["email_to"] = email_to[0]
+
+        # print(decoded_payload)
+    except re.error as e:
+        # Skip packets that failed decoding
+        logger.error("Regex error occured: %s", e)
+    except UnicodeDecodeError:
+        # ignore failed decoding errors
         pass
-    # Search for Emails
-    # try:
-    #     packet['http_req'] = DpktReq(tcp.data)
-    # except DpktError:
-    #     # Skip TCP packets that do not contain Emails
-    #     pass
 
 
 def get_pcap_data(pcap_file: str) -> list[dict]:
@@ -72,7 +110,7 @@ def get_pcap_data(pcap_file: str) -> list[dict]:
                         # Add the name of the IP type (UDP/ TCP / ICMP / Other)
                         packet['ip_type'] = type(ip.data).__name__
 
-                        # Check if the payload is TCP and has an HTTP request
+                        # Check if the payload is TCP for payload analysis
                         if isinstance(ip.data, DpktTcp):
                             tcp = ip.data
                             tcp_handler(tcp, packet)
@@ -80,10 +118,7 @@ def get_pcap_data(pcap_file: str) -> list[dict]:
                         data.append(packet)
 
                 except DpktError as e:
-                    logger.warning("failed to parse data: %s", e)
-                    continue
-                except Exception as e:
-                    logger.error("Error processing packet: %s", e)
+                    logger.warning("failed to parse packet %s: %s", ts, e)
                     continue
 
         return data

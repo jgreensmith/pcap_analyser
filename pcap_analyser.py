@@ -25,6 +25,10 @@ def main():
     data = get_pcap_data(file)
     show_packet_types(data)
 
+    print([p for p in data if 'email_to' in p])
+    print([p['email_from'] for p in data if 'email_from' in p])
+    # print([p['image'] for p in data if 'image_url' in p])
+
 
 if __name__ == "__main__":
     main()
