@@ -71,8 +71,11 @@ def extract_image(dpkt_req: DpktReq, packet: dict, port: int) -> None:
 
         # Check if the URI ends with an image extension
         if any(uri.endswith(ext) for ext in image_extensions):
-            packet["image_url"] = f"http{
-                's' if port == 443 else ''}://{dpkt_req.headers['host']}{uri}"
+
+            packet["image_url"] = (
+                f"http{'s' if port == 443 else ''}"
+                f"://{dpkt_req.headers['host']}{uri}"
+            )
             packet["image"] = os.path.basename(uri)
 
 

@@ -159,13 +159,16 @@ def extracted_emails(data: list[dict]) -> None:
 def extracted_images(data: list[dict]) -> None:
     """ show extracted image file names and full urls"""
     try:
-
+        image_count = 0
         for p in data:
             if 'image' in p:
                 print(f"File Name: {p['image']}")
                 print(f"URL: {p['image_url']}\n")
+                image_count += 1
 
-        logger.info("successfully printed image name and files to terminal")
+        logger.info(
+            "successfully printed name and url for %s images", image_count
+        )
 
     except KeyError as e:
         logger.error("Missing image_url: %s", e)

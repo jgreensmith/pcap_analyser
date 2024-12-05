@@ -24,7 +24,7 @@ logger = logging.getLogger("utils")
 
 
 def main():
-    """function for primary script logic """
+    """function for primary script logic."""
     try:
         # Test cases
         file = 'evidence-packet-analysis.pcap'
