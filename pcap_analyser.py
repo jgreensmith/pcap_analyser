@@ -11,7 +11,7 @@
 
 import logging
 from data_aggregation import get_pcap_data
-from data_display import packet_types, extracted_emails, extracted_images
+from data_display import packet_types, extracted_emails, extracted_images, ip_address_count
 from utils import SafeExitError
 
 logger = logging.getLogger("utils")
@@ -31,6 +31,7 @@ def main():
         packet_types(data)
         extracted_emails(data)
         extracted_images(data)
+        ip_address_count(data)
 
         # print([p for p in data if 'email_to' in p])
         # print([p for p in data if 'email_from' in p])
