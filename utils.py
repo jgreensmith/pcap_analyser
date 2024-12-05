@@ -34,7 +34,7 @@ class SafeExitError(Exception):
         super().__init__(self.message)
 
     def __str__(self):
-        return f"safely exited early due to an error at:{self.message}\nFor troubleshooting, view the log file: {self.logger_file}"
+        return f"safely exited early due to an error at: {self.message}\nFor troubleshooting, view the log file: {self.logger_file}"
 
 
 def script_decorator(func: Callable) -> Callable:

@@ -10,8 +10,14 @@
 """
 
 import logging
-from data_aggregation import get_pcap_data
-from data_display import packet_types, extracted_emails, extracted_images, ip_address_count
+from data_aggregation import get_pcap_data, get_ip_dict
+from data_display import (
+    packet_types,
+    extracted_emails,
+    extracted_images,
+    ip_address_count,
+    generate_kml_file
+)
 from utils import SafeExitError
 
 logger = logging.getLogger("utils")
@@ -31,11 +37,12 @@ def main():
         packet_types(data)
         extracted_emails(data)
         extracted_images(data)
-        ip_address_count(data)
+        ip_dict = get_ip_dict(data)
+        if ip_dict is None:
+            raise SafeExitError('get_ip_dict')
+        ip_address_count(ip_dict)
+        generate_kml_file(ip_dict)
 
-        # print([p for p in data if 'email_to' in p])
-        # print([p for p in data if 'email_from' in p])
-        # print([p['image'] for p in data if 'image_url' in p])
     except SafeExitError as e:
         print(f"Caught SafeExitError: {e}")
         logger.warning('Caught SafeExitError script ended safely')

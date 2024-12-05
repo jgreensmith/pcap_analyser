@@ -3,35 +3,48 @@ sort this
 """
 import logging
 from pandas import DataFrame as df
+import geoip2.database
+import simplekml
 from utils import script_decorator
 
 logger = logging.getLogger("utils")
 
 
 @script_decorator
-def ip_address_count(data: list[dict]) -> None:
+def generate_kml_file(ip_dict: dict) -> None:
+    """ generate KML file"""
+
+    reader = geoip2.database.Reader(r"GeoLite2-City_20190129.mmdb")
+    print(reader.city("146.176.164.91"))
+    # rec = reader.
+    # ("146.176.164.91")
+    # print(rec.location)
+
+    # # Create a KML object
+    # kml = simplekml.Kml()
+
+    # # Add data to KML
+    # for ip, counts in ip_dict.items():
+    #     total_count = counts['src_count'] + counts['dst_count']
+    #     if ip in coordinates:
+    #         lat, lon = coordinates[ip]
+    #         pnt = kml.newpoint(name=f"{ip}", coords=[(lon, lat)])
+    #         pnt.description = f"Total Count: {total_count}"
+    #         pnt.style.labelstyle.color = simplekml.Color.red
+    #         pnt.style.labelstyle.scale = 1
+
+    # # Save the KML file
+    # kml.save("output.kml")
+
+
+@script_decorator
+def ip_address_count(ip_dict: dict) -> None:
     """
         Extract the sender and destination IP address pairs for all packets 
         and count how many packets were sent from/to each.
         return in form of a dictionary and print sorted by traffic
     """
     try:
-        ip_dict = {}
-        for p in data:
-            # add src ip to count or add new object
-            if p['src_ip'] in ip_dict:
-                ip_dict[p['src_ip']]['src_count'] += 1
-            else:
-                ip_dict[p['src_ip']] = {'src_count': 1, 'dst_count': 0}
-
-            # add dst ip to count or add new object
-            if p['dst_ip'] in ip_dict:
-                ip_dict[p['dst_ip']]['dst_count'] += 1
-            else:
-                ip_dict[p['dst_ip']] = {'src_count': 0, 'dst_count': 1}
-
-        logger.info('Successfully generated ip_dict')
-
         # Convert dict to DataFrame
         data_f = df.from_dict(ip_dict, orient='index')
 
@@ -42,6 +55,7 @@ def ip_address_count(data: list[dict]) -> None:
         df_sorted = data_f.sort_values(by='traffic', ascending=False)
 
         print(df_sorted)
+        logger.info("Succesfully printed IP count table to terminal")
 
     except ValueError as e:
         logger.error("ValueError: %s", e)
