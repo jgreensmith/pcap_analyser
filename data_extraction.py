@@ -4,12 +4,61 @@ import os
 import re
 import logging
 import dpkt
+import simplekml
+import geoip2.errors
+import geoip2.database
 
 
 logger = logging.getLogger("utils")
 
 DpktReq = dpkt.http.Request
 DpktError = dpkt.UnpackError
+
+
+def extract_geolocation_data(ip_dict: dict, kml_filename: str) -> int:
+    """ search geoip2 database for every destination ip address in ip_dict """
+
+    ip_count = 0
+    try:
+
+        reader = geoip2.database.Reader(r"GeoLite2-City_20190129.mmdb")
+
+        # Create a KML object
+        kml = simplekml.Kml()
+        AddressNotFoundError = geoip2.errors.AddressNotFoundError
+
+        for ip, counts in ip_dict.items():
+            if counts['dst_count'] > 0:
+                try:
+                    # Read from geoip2 database to obtain geo data
+                    geo_data = reader.city(ip)
+
+                    city = geo_data.city.name
+                    country = geo_data.country.name
+                    lon = geo_data.location.longitude
+                    lat = geo_data.location.latitude
+
+                    pnt = kml.newpoint(name=f"{ip}", coords=[(lon, lat)])
+                    pnt.description = (
+                        f"Destination IP address count: {
+                            counts['dst_count']}\n"
+                        f"City: {city}\n"
+                        f"Country: {country}"
+                    )
+
+                    pnt.style.labelstyle.color = simplekml.Color.red
+                    pnt.style.labelstyle.scale = 1
+
+                    ip_count += 1
+                except AddressNotFoundError as e:
+                    logger.warning("%s not in geoip2 database", e)
+            else:
+                logger.warning("%s is not in destination ip address", ip)
+        kml.save(kml_filename)
+
+    except geoip2.errors.GeoIP2Error as e:
+        logger.error("Error reading geoip2 database: %s", e)
+    return ip_count
 
 
 def extract_image(dpkt_req: DpktReq, packet: dict, port: int) -> None:

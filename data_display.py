@@ -3,61 +3,29 @@ sort this
 """
 import logging
 import os
-import geoip2.errors
-import geoip2.database
+
 from pandas import DataFrame as df
-import simplekml
 from utils import script_decorator, LOG_FILENAME
+from data_extraction import extract_geolocation_data
 
 logger = logging.getLogger("utils")
 
 
 @script_decorator
 def generate_kml_file(ip_dict: dict) -> None:
-    """ generate KML file"""
+    """ generate KML file, print summary and file path"""
     try:
 
-        reader = geoip2.database.Reader(r"GeoLite2-City_20190129.mmdb")
-        # print(rec.location)
-
-        # Create a KML object
-        kml = simplekml.Kml()
-        AddressNotFoundError = geoip2.errors.AddressNotFoundError
+        kml_filename = "pcap_analyser.kml"
 
         # count processed ip addresses
-        ip_count = 0
         total_dict = len(ip_dict)
         # Add data to KML
-        for ip, counts in ip_dict.items():
-            if counts['dst_count'] > 0:
-                try:
-                    # Read from geoip2 database to obtain geo data
-                    geo_data = reader.city(ip)
 
-                    city = geo_data.city.name
-                    country = geo_data.country.name
-                    lon = geo_data.location.longitude
-                    lat = geo_data.location.latitude
-
-                    pnt = kml.newpoint(name=f"{ip}", coords=[(lon, lat)])
-                    pnt.description = (
-                        f"Destination IP address count: {
-                            counts['dst_count']}\n"
-                        f"City: {city}\n"
-                        f"Country: {country}"
-                    )
-
-                    pnt.style.labelstyle.color = simplekml.Color.red
-                    pnt.style.labelstyle.scale = 1
-
-                    ip_count += 1
-                except AddressNotFoundError as e:
-                    logger.warning("%s not in geoip2 database", e)
-            else:
-                logger.warning("%s is not in destination ip address", ip)
         # Save the KML file
-        kml_filename = "pcap_analyser.kml"
-        kml.save(kml_filename)
+        ip_count = extract_geolocation_data(ip_dict, kml_filename)
+        if ip_count == 0:
+            raise RuntimeError("failed to extract geolocation data")
 
         # Get the current working directory
         cwd = os.getcwd()
@@ -75,9 +43,11 @@ def generate_kml_file(ip_dict: dict) -> None:
             f"\nview log file to confirm:\n\n{log_path}"
         )
         print(result_message)
+    except OSError as e:
+        logger.error("OSError: %s", e)
 
-    except geoip2.errors.GeoIP2Error as e:
-        logger.error("Error reading geoip2 database: %s", e)
+    except RuntimeError as e:
+        logger.error("RuntimeError: %s", e)
 
 
 @script_decorator
