@@ -23,6 +23,8 @@ logging.basicConfig(
 )
 
 # Define the custom exception
+
+
 class SafeExitError(Exception):
     """Custom exception for safe script termination."""
 
@@ -39,14 +41,12 @@ def script_decorator(func: Callable) -> Callable:
     """ format the terminal output"""
 
     spacer_max = 85
-    name = func.__name__
-    spacert = '-' * int((spacer_max - (len(name) + 2)) / 2)
+    title = func.__name__.replace('_', ' ').title()
+    spacert = '-' * int((spacer_max - (len(title) + 2)) / 2)
     spacerb = '-' * spacer_max
 
     def wrapper(*args, **kwargs):
-        print(f"\n{spacert} {name} {spacert}\n")
+        print(f"\n{spacert} {title} {spacert}\n")
         func(*args, **kwargs)
         print(f"\n{spacerb}")
     return wrapper
-
-

@@ -11,7 +11,7 @@
 
 import logging
 from data_aggregation import get_pcap_data
-from data_display import show_packet_types, create_data_frame
+from data_display import packet_types, extracted_emails, extracted_images
 from utils import SafeExitError
 
 logger = logging.getLogger("utils")
@@ -28,10 +28,9 @@ def main():
         data = get_pcap_data(file)
         if not data:
             raise SafeExitError('get_pcap_data')
-        data_frame = create_data_frame(data)
-        if data_frame.empty:
-            raise SafeExitError('create_data_frame')
-        show_packet_types(data_frame)
+        packet_types(data)
+        extracted_emails(data)
+        extracted_images(data)
 
         # print([p for p in data if 'email_to' in p])
         # print([p for p in data if 'email_from' in p])

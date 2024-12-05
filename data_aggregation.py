@@ -83,6 +83,7 @@ def tcp_handler(tcp, packet: dict) -> None:
     except UnicodeDecodeError:
         # ignore failed decoding errors
         pass
+    return None
 
 
 def get_pcap_data(pcap_file: str) -> list[dict]:
