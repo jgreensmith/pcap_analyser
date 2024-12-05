@@ -11,23 +11,34 @@
 
 import logging
 from data_aggregation import get_pcap_data
-from data_display import show_packet_types
+from data_display import show_packet_types, create_data_frame
+from utils import SafeExitError
 
 logger = logging.getLogger("utils")
 
 
 def main():
     """function for primary script logic """
-    # Test case
-    file = 'evidence-packet-analysis.pcap'
-    # file = 'pcap_analyser_log_2024-12-03.log'
-    # logger.info("butt")
-    data = get_pcap_data(file)
-    show_packet_types(data)
+    try:
+        # Test cases
+        file = 'evidence-packet-analysis.pcap'
+        # file = 'missing_file.pcap'
+        # file = 'bad_file.pcap'
 
-    print([p for p in data if 'email_to' in p])
-    print([p for p in data if 'email_from' in p])
-    # print([p['image'] for p in data if 'image_url' in p])
+        data = get_pcap_data(file)
+        if not data:
+            raise SafeExitError('get_pcap_data')
+        data_frame = create_data_frame(data)
+        if data_frame.empty:
+            raise SafeExitError('create_data_frame')
+        show_packet_types(data_frame)
+
+        # print([p for p in data if 'email_to' in p])
+        # print([p for p in data if 'email_from' in p])
+        # print([p['image'] for p in data if 'image_url' in p])
+    except SafeExitError as e:
+        print(f"Caught SafeExitError: {e}")
+        logger.warning('Caught SafeExitError script ended safely')
 
 
 if __name__ == "__main__":

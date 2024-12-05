@@ -8,27 +8,36 @@ from utils import script_decorator
 logger = logging.getLogger("utils")
 
 
+def create_data_frame(data: list[dict]) -> df | None:
+    """use pandas to create data frame"""
+
+    try:
+        data_frame = df(data)
+        # Create DataFrame
+        return data_frame
+
+    except ValueError as e:
+        logger.error("ValueError: %s", e)
+    except TypeError as e:
+        logger.error("TypeError: %s", e)
+    return None
+
+
 @script_decorator
-def show_packet_types(data: list[dict]) -> None:
+def show_packet_types(data_frame: df) -> None:
     """ generate a table showing type of IP (UDP/TCP),
         total packets and mean packet length
        """
 
     try:
-        # Check if data exists
-        if not data:
-            raise ValueError("Data list is empty")
-
-        # Create DataFrame
-        data_table = df(data)
 
         # Validate required columns
         required_columns = {'ip_type', 'length', 'time_stamp'}
-        if not required_columns.issubset(data_table.columns):
+        if not required_columns.issubset(data_frame.columns):
             raise ValueError("Data is missing one or more required columns")
 
         # Grouping by 'ip_type' and counting occurrences
-        group = data_table.groupby('ip_type')
+        group = data_frame.groupby('ip_type')
 
         # Aggregate pandas functions - size, mean, first and last to grouped data
         table = group.agg(
@@ -49,5 +58,5 @@ def show_packet_types(data: list[dict]) -> None:
     except ValueError as e:
         logger.error("ValueError: %s", e)
 
-    except Exception as e:
-        logger.error("An unexpected error occurred: %s", e)
+    except TypeError as e:
+        logger.error("TypeError: %s", e)

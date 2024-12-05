@@ -12,9 +12,7 @@ import logging
 from datetime import datetime as dt
 from typing import Callable
 
-
 # Configure logging
-
 log_filename = f"pcap_analyser_log_{dt.now().strftime('%Y-%m-%d')}.log"
 
 logging.basicConfig(
@@ -23,6 +21,18 @@ logging.basicConfig(
     format='%(asctime)s - %(levelname)s - %(message)s',  # Log format
     datefmt='%Y-%m-%d %H:%M:%S'  # Date format
 )
+
+# Define the custom exception
+class SafeExitError(Exception):
+    """Custom exception for safe script termination."""
+
+    def __init__(self, message):
+        self.message = message
+        self.logger_file = log_filename
+        super().__init__(self.message)
+
+    def __str__(self):
+        return f"safely exited early due to an error at:{self.message}\nFor troubleshooting, view the log file: {self.logger_file}"
 
 
 def script_decorator(func: Callable) -> Callable:
@@ -38,3 +48,5 @@ def script_decorator(func: Callable) -> Callable:
         func(*args, **kwargs)
         print(f"\n{spacerb}")
     return wrapper
+
+
