@@ -2,10 +2,12 @@
 sort this
 """
 import logging
-from pandas import DataFrame as df
+import os
+import geoip2.errors
 import geoip2.database
+from pandas import DataFrame as df
 import simplekml
-from utils import script_decorator
+from utils import script_decorator, LOG_FILENAME
 
 logger = logging.getLogger("utils")
 
@@ -13,28 +15,69 @@ logger = logging.getLogger("utils")
 @script_decorator
 def generate_kml_file(ip_dict: dict) -> None:
     """ generate KML file"""
+    try:
 
-    reader = geoip2.database.Reader(r"GeoLite2-City_20190129.mmdb")
-    print(reader.city("146.176.164.91"))
-    # rec = reader.
-    # ("146.176.164.91")
-    # print(rec.location)
+        reader = geoip2.database.Reader(r"GeoLite2-City_20190129.mmdb")
+        # print(rec.location)
 
-    # # Create a KML object
-    # kml = simplekml.Kml()
+        # Create a KML object
+        kml = simplekml.Kml()
+        AddressNotFoundError = geoip2.errors.AddressNotFoundError
 
-    # # Add data to KML
-    # for ip, counts in ip_dict.items():
-    #     total_count = counts['src_count'] + counts['dst_count']
-    #     if ip in coordinates:
-    #         lat, lon = coordinates[ip]
-    #         pnt = kml.newpoint(name=f"{ip}", coords=[(lon, lat)])
-    #         pnt.description = f"Total Count: {total_count}"
-    #         pnt.style.labelstyle.color = simplekml.Color.red
-    #         pnt.style.labelstyle.scale = 1
+        # count processed ip addresses
+        ip_count = 0
+        total_dict = len(ip_dict)
+        # Add data to KML
+        for ip, counts in ip_dict.items():
+            if counts['dst_count'] > 0:
+                try:
+                    # Read from geoip2 database to obtain geo data
+                    geo_data = reader.city(ip)
 
-    # # Save the KML file
-    # kml.save("output.kml")
+                    city = geo_data.city.name
+                    country = geo_data.country.name
+                    lon = geo_data.location.longitude
+                    lat = geo_data.location.latitude
+
+                    pnt = kml.newpoint(name=f"{ip}", coords=[(lon, lat)])
+                    pnt.description = (
+                        f"Destination IP address count: {
+                            counts['dst_count']}\n"
+                        f"City: {city}\n"
+                        f"Country: {country}"
+                    )
+
+                    pnt.style.labelstyle.color = simplekml.Color.red
+                    pnt.style.labelstyle.scale = 1
+
+                    ip_count += 1
+                except AddressNotFoundError as e:
+                    logger.warning("%s not in geoip2 database", e)
+            else:
+                logger.warning("%s is not in destination ip address", ip)
+        # Save the KML file
+        kml_filename = "pcap_analyser.kml"
+        kml.save(kml_filename)
+
+        # Get the current working directory
+        cwd = os.getcwd()
+
+        # Join with cwd for full path
+        log_path = os.path.join(cwd, LOG_FILENAME)
+        kml_path = os.path.join(cwd, kml_filename)
+
+        result_message = (
+            f"KML file path: {kml_path}\n\n"
+            f"{total_dict} IP addresses extracted from pcap file.\n"
+            f"Geo location data found from {ip_count} IP addresses."
+            f"\nRemaining {total_dict - ip_count} are likely private"
+            f" or not destination IP addresses"
+            f"\nview log file to confirm:\n\n{log_path}"
+        )
+        print(result_message)
+
+    except geoip2.errors.GeoIP2Error as e:
+        logger.error("Error reading geoip2 database: %s", e)
 
 
 @script_decorator

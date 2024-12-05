@@ -13,10 +13,10 @@ from datetime import datetime as dt
 from typing import Callable
 
 # Configure logging
-log_filename = f"pcap_analyser_log_{dt.now().strftime('%Y-%m-%d')}.log"
+LOG_FILENAME = f"pcap_analyser_log_{dt.now().strftime('%Y-%m-%d')}.log"
 
 logging.basicConfig(
-    filename=log_filename,  # Log file name
+    filename=LOG_FILENAME,  # Log file name
     level=logging.INFO,     # Set default logging level
     format='%(asctime)s - %(levelname)s - %(message)s',  # Log format
     datefmt='%Y-%m-%d %H:%M:%S'  # Date format
@@ -30,7 +30,7 @@ class SafeExitError(Exception):
 
     def __init__(self, message):
         self.message = message
-        self.logger_file = log_filename
+        self.logger_file = LOG_FILENAME
         super().__init__(self.message)
 
     def __str__(self):
