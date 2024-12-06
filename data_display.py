@@ -9,12 +9,12 @@ from pandas import DataFrame as df
 
 from utils import script_decorator, LOG_FILENAME
 from data_extraction import extract_geolocation_data
-from data_analysis import Analysis, traffic_time_analysis
+from data_analysis import Analysis
 
 logger = logging.getLogger("utils")
 
 
-# @script_decorator
+@script_decorator
 def generate_packet_count_chart(analysis: Analysis) -> None:
     """
     Plots the number of packets against time after grouping into intervals.
@@ -38,10 +38,17 @@ def generate_packet_count_chart(analysis: Analysis) -> None:
     plt.title('Number of Packets vs Time')
     plt.legend()
     plt.tight_layout()
-    plt.show()
 
-    png_file = 'number_of_packets_vs_time'
-    plt.savefig('fart')
+    png_file = 'number_of_packets_vs_time.png'
+    plt.savefig(png_file)
+
+    cwd = os.getcwd()
+    png_path = os.path.join(cwd, png_file)
+
+    print(f"Chart saved as PNG: {png_path}")
+    logger.info("Chart saved as PNG: %s", png_path)
+
+    plt.show()
 
 
 @script_decorator

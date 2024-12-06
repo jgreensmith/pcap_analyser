@@ -36,7 +36,6 @@ def main():
         data = get_pcap_data(file)
         if not data:
             raise SafeExitError('get_pcap_data')
-        print(data[0:10])
         packet_types(data)
         extracted_emails(data)
         extracted_images(data)
