@@ -1,5 +1,5 @@
 """
-This module provides logic for data analysis, 
+This module provides logic for data analysis,
 including interval-based packet counts and statistical threshold calculation.
 
 Imports:
@@ -17,7 +17,7 @@ logger = logging.getLogger("utils")
 
 
 class Analysis:
-    """     
+    """
     Represents the result of a traffic time analysis.
     """
 
@@ -28,7 +28,8 @@ class Analysis:
 
 def traffic_time_analysis(data: list[dict], interval_length: int = 2) -> Analysis | None:
     """
-    Analyses packet traffic over specified time intervals and computes a threshold
+    Analyses packet traffic over specified time intervals
+    and computes a threshold
     for detecting heavy traffic based on two standard deviations.
     """
     try:

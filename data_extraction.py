@@ -1,13 +1,17 @@
-""" 
-This script contains functions for the extraction process of the packet capture analysis. 
-extracting geolocation data, images, and email information from the packets. 
+"""
+This script contains functions for the extraction
+process of the packet capture analysis.
+extracting geolocation data, images, and
+email information from the packets.
 
 Third Party Modules imported:
-    - `dpkt` (https://dpkt.readthedocs.io/en/latest/): 
-        For reading and parsing .pcap files, and handling network packet structures.
-    - `simplekml` (https://simplekml.readthedocs.io/en/latest/): 
-        For interacting with kml object - can create files to be used on google earth.
-    - `geoip2` (https://pypi.org/project/geoip2/): 
+    - `dpkt` (https://dpkt.readthedocs.io/en/latest/):
+        For reading and parsing .pcap files,
+        and handling network packet structures.
+    - `simplekml` (https://simplekml.readthedocs.io/en/latest/):
+        For interacting with kml object - can
+        create files to be used on google earth.
+    - `geoip2` (https://pypi.org/project/geoip2/):
         For obtaining geolocation data from ip addresses.
 """
 
@@ -73,7 +77,10 @@ def extract_geolocation_data(ip_dict: dict, kml_filename: str) -> int:
 
 
 def extract_image(dpkt_req: DpktReq, packet: dict, port: int) -> None:
-    """check if http request contains and image, then add url and image name to packet"""
+    """
+    check if http request contains and image,
+    then add url and image name to packet
+    """
     image_extensions = {'.jpg', '.jpeg', '.png', '.gif',
                         '.bmp', '.webp', '.svg'}  # use set for speed
 

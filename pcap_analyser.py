@@ -5,17 +5,19 @@ Author: James Greensmith
 Date: 06 December 2024
 Version: 1.0
 
-This script opens, reads and closes a packet capture (pcap file) and parses specific information:
+This script opens, reads and closes a packet capture
+(pcap file) and parses specific information:
     - ip addresses
     - email addresses
     - image urls from http get requests
     - packet types (UDP/ TCP/ IGMP)
     - time stamps.
 
-The data is used in various display functions and further data analysis functions 
-that perform statistical analysis on the visualise the traffic flows.
-each function that has a return statement raises a SafeExitError on fail, safely stopping 
-the script early. 
+The data is used in various display functions and further
+data analysis functions that perform statistical analysis
+on the visualise the traffic flows. each function that has a
+return statement raises a SafeExitError on fail, safely stopping
+the script early.
 
 Files Generated:
     - pcap_analyser_log_<date>.log
@@ -25,7 +27,6 @@ Files Generated:
 Instructions:
     - in the root directory, run:
         pip install -r requirements.txt && python -m pcap_analyser.py
-        
 """
 
 import logging

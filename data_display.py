@@ -1,15 +1,19 @@
 """
-This script provides various functions for displaying analysed/ extracted network packet data,
-including generating visualisations, extracted geolocation data, summarising IP
-addresses, packet types, and extracted specific information such as
-emails and images. The script decorator seperates data section presented in the terminal.
+This script provides various functions for displaying
+analysed/ extracted network packet data,
+including generating visualisations, extracted geolocation
+data, summarising IP addresses, packet types, and
+extracted specific information such as emails and images.
+The script decorator seperates data section
+presented in the terminal.
 
 Modules imported:
-- `matplotlib.pyplot` (https://matplotlib.org/stable/api/pyplot_summary.html):
+- `matplotlib.pyplot`
+(https://matplotlib.org/stable/api/pyplot_summary.html):
         For generating visualisations.
-- `pandas.DataFrame` (https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html): 
+- `pandas.DataFrame`
+(https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html):
         For creating and manipulating data tables.
-
 """
 
 import logging
@@ -35,7 +39,7 @@ def generate_packet_count_chart(analysis: Analysis) -> None:
                              `zip_object` (tuple of times and counts)
                              and a threshold value.
 
-    Saves the chart as a PNG file in the current directory and displays it.   
+    Saves the chart as a PNG file in the current directory.
     """
 
     try:
@@ -47,8 +51,12 @@ def generate_packet_count_chart(analysis: Analysis) -> None:
         plt.figure(figsize=(10, 6))
         plt.plot(times, counts, marker='o', label='Packet Counts')
         plt.xticks(rotation=45)
-        plt.axhline(y=threshold, color='r', linestyle='--',
-                    label=f'Threshold for exceptionally heavy traffic: {threshold}')
+        plt.axhline(
+            y=threshold,
+            color='r',
+            linestyle='--',
+            label=f'Threshold for exceptionally heavy traffic: {threshold}'
+        )
         plt.xlabel('Time')
         plt.ylabel('Number of Packets')
         plt.title('Number of Packets vs Time')
@@ -119,12 +127,9 @@ def generate_kml_file(ip_dict: dict) -> None:
 @script_decorator
 def ip_address_count(ip_dict: dict) -> None:
     """
-        Extract the sender and destination IP address pairs for all packets 
+        Extract the sender and destination IP address pairs for all packets
         and count how many packets were sent from/to each.
         return in form of a dictionary and print sorted by traffic
-
-        Parameters:
-        ip_dict (dict): Dictionary with IP addresses and their send/receive counts.
     """
     try:
         # Convert dict to DataFrame
@@ -151,10 +156,6 @@ def packet_types(data: list[dict]) -> None:
     Analyzes packet types and generates a summary table.
     Prints summary table to console
 
-    Parameters:
-        data (list[dict]): List of dictionaries containing packet data
-                           (e.g., IP type, length, and timestamp).
-
     """
 
     try:
@@ -170,7 +171,8 @@ def packet_types(data: list[dict]) -> None:
         # Grouping by 'ip_type' and counting occurrences
         group = data_frame.groupby('ip_type')
 
-        # Aggregate pandas functions - size, mean, first and last to grouped data
+        # Aggregate pandas functions - size, mean,
+        # first and last to grouped data
         table = group.agg(
             packet_count=('length', 'size'),
             mean_packet_length=('length', 'mean'),
@@ -201,11 +203,6 @@ def extracted_emails(data: list[dict]) -> None:
     Prints:
     - Extracted emails in 'To' and 'From' columns.
     - Unique email addresses found in both fields
-
-    Parameters:
-        data (list[dict]): List of dictionaries containing packet data.
-
-    Logs the result.
     """
     try:
         # Filter data with emails
@@ -214,12 +211,12 @@ def extracted_emails(data: list[dict]) -> None:
         data_frame = df(f_data)
 
         # Validate required columns
-        required_columns = ['email_from', 'email_to']
-        if not all(column in data_frame.columns for column in required_columns):
+        required_cols = ['email_from', 'email_to']
+        if not all(column in data_frame.columns for column in required_cols):
             raise ValueError("Data is missing one or more required columns")
 
         # Show extracted emails
-        print(data_frame[required_columns].to_string(index=False))
+        print(data_frame[required_cols].to_string(index=False))
 
         # Show Unique emails
         print("\n########### Unique Emails From ############\n")
@@ -241,12 +238,6 @@ def extracted_emails(data: list[dict]) -> None:
 def extracted_images(data: list[dict]) -> None:
     """
     Extracts and displays image file names and URLs from packet data.
-
-    Prints the extracted image file names and their associated URLs.
-    Logs the count of images processed.
-
-    Parameters:
-        data (list[dict]): List of dictionaries containing packet data.
     """
 
     try:

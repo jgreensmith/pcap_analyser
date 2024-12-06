@@ -1,11 +1,15 @@
 """
-This script processes and analyses network traffic data from .pcap files. 
-It includes utilities for decoding packets, extracting IP address details, 
-and organising packet information for further analysis.
+This script processes and analyses network
+traffic data from .pcap files.
+It includes utilities for decoding packets,
+extracting IP address details,
+and organising packet information for further
+analysis.
 
 Third Party Modules imported:
-  - `dpkt` (https://dpkt.readthedocs.io/en/latest/): 
-    For reading and parsing .pcap files, and handling network packet structures.
+  - `dpkt` (https://dpkt.readthedocs.io/en/latest/):
+    For reading and parsing .pcap files, and
+    handling network packet structures.
 """
 
 import socket
@@ -17,7 +21,8 @@ from data_extraction import tcp_handler
 logger = logging.getLogger("utils")
 
 
-# Define dpkt callable classes and socket function outside the loop for optimization
+# Define dpkt callable classes and socket
+# function outside the loop for optimization
 DpktEth = dpkt.ethernet.Ethernet
 DpktIp = dpkt.ip.IP
 DpktTcp = dpkt.tcp.TCP
@@ -28,7 +33,7 @@ socket_inet_ntoa = socket.inet_ntoa
 
 def get_ip_dict(data: list[dict]) -> dict | None:
     """
-        Extract the sender and destination IP address pairs for all packets 
+        Extract the sender and destination IP address pairs for all packets
         and count how many packets were sent from/to each.
         return in form of a dictionary and print sorted by traffic
     """
@@ -58,8 +63,9 @@ def get_ip_dict(data: list[dict]) -> dict | None:
 
 
 def get_pcap_data(pcap_file: str) -> list[dict]:
-    """ 
-    Reads data from a .pcap file, decodes it, and returns a list of packet details as dictionaries.
+    """
+    Reads data from a .pcap file, decodes it,
+    and returns a list of packet details as dictionaries.
     """
     try:
 
