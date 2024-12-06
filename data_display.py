@@ -4,11 +4,44 @@ sort this
 import logging
 import os
 
+import matplotlib.pyplot as plt
 from pandas import DataFrame as df
+
 from utils import script_decorator, LOG_FILENAME
 from data_extraction import extract_geolocation_data
+from data_analysis import Analysis, traffic_time_analysis
 
 logger = logging.getLogger("utils")
+
+
+# @script_decorator
+def generate_packet_count_chart(analysis: Analysis) -> None:
+    """
+    Plots the number of packets against time after grouping into intervals.
+
+    Parameters:
+    - data: List of packet dictionaries containing 'time_stamp' and other fields.
+    - interval_seconds: The length of each time interval in seconds.
+    """
+
+    times, counts = analysis.zip_object
+    threshold = analysis.threshold
+
+    # Plotting
+    plt.figure(figsize=(10, 6))
+    plt.plot(times, counts, marker='o', label='Packet Counts')
+    plt.xticks(rotation=45)
+    plt.axhline(y=threshold, color='r', linestyle='--',
+                label=f'Threshold for exceptionally heavy traffic: {threshold}')
+    plt.xlabel('Time')
+    plt.ylabel('Number of Packets')
+    plt.title('Number of Packets vs Time')
+    plt.legend()
+    plt.tight_layout()
+    plt.show()
+
+    png_file = 'number_of_packets_vs_time'
+    plt.savefig('fart')
 
 
 @script_decorator
