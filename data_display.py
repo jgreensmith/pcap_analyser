@@ -2,24 +2,14 @@
 This script provides various functions for displaying analysed/ extracted network packet data,
 including generating visualisations, extracted geolocation data, summarising IP
 addresses, packet types, and extracted specific information such as
-emails and images.
+emails and images. The script decorator seperates data section presented in the terminal.
 
 Modules imported:
-- `logging`: For logging script activities and errors.
-- `os`: For file path manipulations.
 - `matplotlib.pyplot` (https://matplotlib.org/stable/api/pyplot_summary.html):
         For generating visualisations.
 - `pandas.DataFrame` (https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html): 
         For creating and manipulating data tables.
 
-Custom imports:
-- `script_decorator`: A decorator for script functions that display data to console.
-- `LOG_FILENAME`: Log file name.
-- `extract_geolocation_data`: Function to extract geolocation data for IPs.
-- `Analysis`: A class encapsulating  data to be used for visualisation.
-
-Logger:
-- Configured in utils.py.
 """
 
 import logging

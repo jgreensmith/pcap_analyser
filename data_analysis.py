@@ -1,5 +1,5 @@
 """
-This module provides utilities for traffic time analysis on network data, 
+This module provides logic for data analysis, 
 including interval-based packet counts and statistical threshold calculation.
 
 Imports:

@@ -1,10 +1,7 @@
 """
-    utils.py
+utils.py
 
-    util functions for use in pcap_analyser.py
-
-    Third party module documentaion:
-    dpkt - https://dpkt.readthedocs.io/en/latest/
+This script provides the utility functions and configurations for use in pcap_analyser. 
 
 """
 

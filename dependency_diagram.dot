@@ -1,0 +1,35 @@
+
+digraph G {
+    concentrate = true;
+
+    rankdir = TB;
+    node [style=filled,fillcolor="#ffffff",fontcolor="#000000",fontname=Helvetica,fontsize=10];
+
+    data_aggregation [fillcolor="#ac4949",fontcolor="#ffffff"];
+    data_analysis [fillcolor="#c08c40"];
+    data_display [fillcolor="#7e8f3d"];
+    data_extraction [fillcolor="#59c040"];
+    dpkt [fillcolor="#33cc70"];
+    matplotlib [fillcolor="#31c4c4"];
+    matplotlib_pyplot [fillcolor="#3db8b8",label="matplotlib\.\npyplot"];
+    numpy [fillcolor="#3370cc",fontcolor="#ffffff"];
+    pandas [fillcolor="#5940c0",fontcolor="#ffffff"];
+    pcap_analyser_py [fillcolor="#844e92",fontcolor="#ffffff",label="pcap_analyser\.\npy"];
+    utils [fillcolor="#c24791",fontcolor="#ffffff"];
+    data_aggregation -> pcap_analyser_py [fillcolor="#ac4949",minlen="2"];
+    data_analysis -> data_display [fillcolor="#c08c40"];
+    data_analysis -> pcap_analyser_py [fillcolor="#c08c40",minlen="2"];
+    data_display -> pcap_analyser_py [fillcolor="#7e8f3d",minlen="2"];
+    data_extraction -> data_aggregation [fillcolor="#59c040"];
+    data_extraction -> data_display [fillcolor="#59c040"];
+    dpkt -> data_aggregation [fillcolor="#33cc70"];
+    dpkt -> data_extraction [fillcolor="#33cc70"];
+    matplotlib -> data_display [fillcolor="#31c4c4"];
+    matplotlib_pyplot -> data_display [fillcolor="#3db8b8",minlen="2"];
+    matplotlib_pyplot -> matplotlib [fillcolor="#3db8b8"];
+    numpy -> data_analysis [fillcolor="#3370cc"];
+    numpy -> matplotlib_pyplot [fillcolor="#3370cc",minlen="2"];
+    pandas -> data_display [fillcolor="#5940c0"];
+    utils -> data_display [fillcolor="#c24791"];
+    utils -> pcap_analyser_py [fillcolor="#c24791",minlen="2"];
+}
