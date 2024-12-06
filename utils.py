@@ -25,7 +25,7 @@ logging.basicConfig(
 class SafeExitError(Exception):
     """Custom exception for safe script termination."""
 
-    def __init__(self, message):
+    def __init__(self, message: str):
         self.message = message
         self.logger_file = LOG_FILENAME
         super().__init__(self.message)

@@ -76,7 +76,7 @@ def extract_geolocation_data(ip_dict: dict, kml_filename: str) -> int:
     return ip_count
 
 
-def extract_image(dpkt_req: DpktReq, packet: dict, port: int) -> None:
+def extract_image(dpkt_req: dpkt.http.Request, packet: dict, port: int) -> None:
     """
     check if http request contains and image,
     then add url and image name to packet

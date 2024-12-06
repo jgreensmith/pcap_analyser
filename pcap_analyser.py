@@ -26,7 +26,7 @@ Files Generated:
 
 Instructions:
     - in the root directory, run:
-        pip install -r requirements.txt && python -m pcap_analyser.py
+        pip install -r requirements.txt && python pcap_analyser.py
 """
 
 import logging
@@ -81,6 +81,7 @@ def main():
 
         # Display visualisation and generate a .png file
         generate_packet_count_chart(analysis)
+        logger.info("End of script")
 
     except SafeExitError as e:
         print(f"Caught SafeExitError: {e}")
