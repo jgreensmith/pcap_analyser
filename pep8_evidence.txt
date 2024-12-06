@@ -1,0 +1,39 @@
+# pylint - 9.94/ 10
+
+~/uni/pcap_analyser$ pylint *.py
+************* Module data_analysis
+data_analysis.py:19:0: R0903: Too few public methods (0/2) (too-few-public-methods)
+************* Module data_extraction
+data_extraction.py:105:0: C0301: Line too long (108/100) (line-too-long)
+
+------------------------------------------------------------------
+Your code has been rated at 9.94/10 (previous run: 9.94/10, +0.00)
+
+# pycodestyle
+
+~/uni/pcap_analyser$ pycodestyle *.py
+data_analysis.py:29:80: E501 line too long (89 > 79 characters)
+data_extraction.py:79:80: E501 line too long (80 > 79 characters)
+data_extraction.py:105:80: E501 line too long (108 > 79 characters)
+data_extraction.py:106:80: E501 line too long (80 > 79 characters)
+
+# mypy
+
+~/uni/pcap_analyser$ mypy --disallow-untyped-defs pcap_analyser.py
+utils.py:33: error: Function is missing a type annotation  [no-untyped-def]
+utils.py:48: error: Function is missing a type annotation  [no-untyped-def]
+data_extraction.py:21: error: Skipping analyzing "dpkt": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+data_extraction.py:22: error: Skipping analyzing "simplekml": module is installed, but missing library stubs or py.typed marker  [import-untyped]
+data_extraction.py:121: error: Function is missing a type annotation for one or more arguments  [no-untyped-def]
+data_analysis.py:71: error: Argument 2 to "Analysis" has incompatible type "floating[Any]"; expected "int"  [arg-type]
+data_aggregation.py:18: error: Skipping analyzing "dpkt": module is installed, but missing library stubs or py.typed marker
+ [import-untyped]
+data_aggregation.py:18: note: See https://mypy.readthedocs.io/en/stable/running_mypy.html#missing-imports
+data_aggregation.py:42: error: Need type annotation for "ip_dict" (hint: "ip_dict: dict[<type>, <type>] = ...")  [var-annotated]
+data_aggregation.py:93: error: Incompatible types in assignment (expression has type "str", target has type "datetime")  [assignment]
+data_aggregation.py:94: error: Incompatible types in assignment (expression has type "str", target has type "datetime")  [assignment]
+data_aggregation.py:97: error: Incompatible types in assignment (expression has type "int", target has type "datetime")  [assignment]
+data_aggregation.py:100: error: Incompatible types in assignment (expression has type "str", target has type "datetime")  [assignment]
+pcap_analyser.py:48: error: Function is missing a return type annotation  [no-untyped-def]
+pcap_analyser.py:48: note: Use "-> None" if function does not return a value
+Found 13 errors in 5 files (checked 1 source file)
