@@ -1,6 +1,27 @@
 """
-sort this
+This script provides various functions for displaying analysed/ extracted network packet data,
+including generating visualisations, extracted geolocation data, summarising IP
+addresses, packet types, and extracted specific information such as
+emails and images.
+
+Modules imported:
+- `logging`: For logging script activities and errors.
+- `os`: For file path manipulations.
+- `matplotlib.pyplot` (https://matplotlib.org/stable/api/pyplot_summary.html):
+        For generating visualisations.
+- `pandas.DataFrame` (https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.html): 
+        For creating and manipulating data tables.
+
+Custom imports:
+- `script_decorator`: A decorator for script functions that display data to console.
+- `LOG_FILENAME`: Log file name.
+- `extract_geolocation_data`: Function to extract geolocation data for IPs.
+- `Analysis`: A class encapsulating  data to be used for visualisation.
+
+Logger:
+- Configured in utils.py.
 """
+
 import logging
 import os
 
@@ -17,43 +38,57 @@ logger = logging.getLogger("utils")
 @script_decorator
 def generate_packet_count_chart(analysis: Analysis) -> None:
     """
-    Plots the number of packets against time after grouping into intervals.
+    Plots the number of packets over time after grouping into intervals.
 
     Parameters:
-    - data: List of packet dictionaries containing 'time_stamp' and other fields.
-    - interval_seconds: The length of each time interval in seconds.
+        analysis (Analysis): An instance of the Analysis class containing
+                             `zip_object` (tuple of times and counts)
+                             and a threshold value.
+
+    Saves the chart as a PNG file in the current directory and displays it.   
     """
 
-    times, counts = analysis.zip_object
-    threshold = analysis.threshold
+    try:
 
-    # Plotting
-    plt.figure(figsize=(10, 6))
-    plt.plot(times, counts, marker='o', label='Packet Counts')
-    plt.xticks(rotation=45)
-    plt.axhline(y=threshold, color='r', linestyle='--',
-                label=f'Threshold for exceptionally heavy traffic: {threshold}')
-    plt.xlabel('Time')
-    plt.ylabel('Number of Packets')
-    plt.title('Number of Packets vs Time')
-    plt.legend()
-    plt.tight_layout()
+        times, counts = analysis.zip_object
+        threshold = analysis.threshold
 
-    png_file = 'number_of_packets_vs_time.png'
-    plt.savefig(png_file)
+        # Plotting
+        plt.figure(figsize=(10, 6))
+        plt.plot(times, counts, marker='o', label='Packet Counts')
+        plt.xticks(rotation=45)
+        plt.axhline(y=threshold, color='r', linestyle='--',
+                    label=f'Threshold for exceptionally heavy traffic: {threshold}')
+        plt.xlabel('Time')
+        plt.ylabel('Number of Packets')
+        plt.title('Number of Packets vs Time')
+        plt.legend()
+        plt.tight_layout()
 
-    cwd = os.getcwd()
-    png_path = os.path.join(cwd, png_file)
+        png_file = 'number_of_packets_vs_time.png'
+        plt.savefig(png_file)
 
-    print(f"Chart saved as PNG: {png_path}")
-    logger.info("Chart saved as PNG: %s", png_path)
+        cwd = os.getcwd()
+        png_path = os.path.join(cwd, png_file)
 
-    plt.show()
+        print(f"Chart saved as PNG: {png_path}")
+        logger.info("Chart saved as PNG: %s", png_path)
+
+        plt.show()
+
+    except (TypeError, ValueError) as e:
+        logger.error('%s: %s', e.__class__.__name__, e)
 
 
 @script_decorator
 def generate_kml_file(ip_dict: dict) -> None:
-    """ generate KML file, print summary and file path"""
+    """
+    Generates a KML file with geolocation data based on IP addresses.
+
+    Parameters:
+        ip_dict (dict): Dictionary of IP addresses and their geolocation data.
+
+    """
     try:
 
         kml_filename = "pcap_analyser.kml"
@@ -83,6 +118,7 @@ def generate_kml_file(ip_dict: dict) -> None:
             f"\nview log file to confirm:\n\n{log_path}"
         )
         print(result_message)
+        logger.info("Generated KML file: %s", kml_path)
     except OSError as e:
         logger.error("OSError: %s", e)
 
@@ -96,6 +132,9 @@ def ip_address_count(ip_dict: dict) -> None:
         Extract the sender and destination IP address pairs for all packets 
         and count how many packets were sent from/to each.
         return in form of a dictionary and print sorted by traffic
+
+        Parameters:
+        ip_dict (dict): Dictionary with IP addresses and their send/receive counts.
     """
     try:
         # Convert dict to DataFrame
@@ -118,9 +157,15 @@ def ip_address_count(ip_dict: dict) -> None:
 
 @script_decorator
 def packet_types(data: list[dict]) -> None:
-    """ generate a table showing type of IP (UDP/TCP),
-        total packets and mean packet length
-       """
+    """
+    Analyzes packet types and generates a summary table.
+    Prints summary table to console
+
+    Parameters:
+        data (list[dict]): List of dictionaries containing packet data
+                           (e.g., IP type, length, and timestamp).
+
+    """
 
     try:
 
@@ -160,10 +205,17 @@ def packet_types(data: list[dict]) -> None:
 
 @script_decorator
 def extracted_emails(data: list[dict]) -> None:
-    """ show extracted emails in columns To and From. 
-        Using 'or' in the filter instead of 'and', 
-        this is so if a packet has failed to extract an email
-        address, it will be caught as a value error below.
+    """
+    Extracts and displays email addresses from packet data.
+
+    Prints:
+    - Extracted emails in 'To' and 'From' columns.
+    - Unique email addresses found in both fields
+
+    Parameters:
+        data (list[dict]): List of dictionaries containing packet data.
+
+    Logs the result.
     """
     try:
         # Filter data with emails
@@ -197,7 +249,16 @@ def extracted_emails(data: list[dict]) -> None:
 
 @script_decorator
 def extracted_images(data: list[dict]) -> None:
-    """ show extracted image file names and full urls"""
+    """
+    Extracts and displays image file names and URLs from packet data.
+
+    Prints the extracted image file names and their associated URLs.
+    Logs the count of images processed.
+
+    Parameters:
+        data (list[dict]): List of dictionaries containing packet data.
+    """
+
     try:
         image_count = 0
         for p in data:

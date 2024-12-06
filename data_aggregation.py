@@ -1,5 +1,11 @@
 """
-sort this
+This script processes and analyses network traffic data from .pcap files. 
+It includes utilities for decoding packets, extracting IP address details, 
+and organising packet information for further analysis.
+
+Third Party Modules imported:
+  - `dpkt` (https://dpkt.readthedocs.io/en/latest/): 
+    For reading and parsing .pcap files, and handling network packet structures.
 """
 
 import socket

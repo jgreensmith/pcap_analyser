@@ -1,4 +1,15 @@
-""" sort this"""
+""" 
+This script contains functions for the extraction process of the packet capture analysis. 
+extracting geolocation data, images, and email information from the packets. 
+
+Third Party Modules imported:
+    - `dpkt` (https://dpkt.readthedocs.io/en/latest/): 
+        For reading and parsing .pcap files, and handling network packet structures.
+    - `simplekml` (https://simplekml.readthedocs.io/en/latest/): 
+        For interacting with kml object - can create files to be used on google earth.
+    - `geoip2` (https://pypi.org/project/geoip2/): 
+        For obtaining geolocation data from ip addresses.
+"""
 
 import os
 import re

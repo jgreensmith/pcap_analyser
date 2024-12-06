@@ -1,4 +1,14 @@
-""""""
+"""
+This module provides utilities for traffic time analysis on network data, 
+including interval-based packet counts and statistical threshold calculation.
+
+Imports:
+    - `logging`: For logging script activities and errors.
+    - `datetime.timedelta`: for interacting with datetime object
+    - `numpy` (https://numpy.org/doc/stable/reference/index.html#reference):
+        For statistical analysis
+"""
+
 import logging
 from datetime import timedelta
 import numpy as np
@@ -7,7 +17,9 @@ logger = logging.getLogger("utils")
 
 
 class Analysis:
-    """ to return analysis"""
+    """     
+    Represents the result of a traffic time analysis.
+    """
 
     def __init__(self, zip_object: zip, threshold: int):
         self.zip_object = zip_object
@@ -15,7 +27,10 @@ class Analysis:
 
 
 def traffic_time_analysis(data: list[dict], interval_length: int = 2) -> Analysis | None:
-    """asdasf"""
+    """
+    Analyses packet traffic over specified time intervals and computes a threshold
+    for detecting heavy traffic based on two standard deviations.
+    """
     try:
         if interval_length <= 0:
             raise ValueError("Interval length must be a positive integer.")
